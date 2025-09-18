@@ -35,7 +35,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 def get_ffmpeg_executable_path():
-    ffmpeg_resource_name = "ffmpeg" 
+    ffmpeg_resource_name = "ffmpeg.exe" 
 
     if getattr(sys, 'frozen', False): 
         bundled_ffmpeg_path = resource_path(ffmpeg_resource_name)
@@ -207,7 +207,9 @@ def extract_first_and_last_frames(video_path, temp_dir, original_filename_base):
     last_frame_path = None
     first_frame_filename = f"{original_filename_base}_{os.urandom(4).hex()}_first_frame.jpg"
     first_frame_output_path = os.path.join(temp_dir, first_frame_filename)
+    first_frame_setting = APP_SETTINGS.get("FIRST_FRAME", "")
     command_first_args = [
+        "-ss", first_frame_setting, 
         "-i", video_path,
         "-vf", "select='eq(n\\,0)'",
         "-an", "-q:v", "2", 
@@ -218,8 +220,9 @@ def extract_first_and_last_frames(video_path, temp_dir, original_filename_base):
     
     last_frame_filename = f"{original_filename_base}_{os.urandom(4).hex()}_last_frame.jpg"
     last_frame_output_path = os.path.join(temp_dir, last_frame_filename)
+    last_frame_setting = APP_SETTINGS.get("LAST_FRAME", "")
     command_last_args = [
-        "-sseof", "-0.5", 
+        "-sseof", last_frame_setting, 
         "-i", video_path,
         "-an", "-frames:v", "1", 
         "-q:v", "2", 
@@ -529,6 +532,7 @@ def main():
     stocksubmitter_data = []
     max_workers = int(APP_SETTINGS.get("MAX_WORKERS"))
     logging.info(f"Using {max_workers} worker threads for processing.")
+    description_ext_setting = APP_SETTINGS.get("DESCRIPTION_EXT", "")
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(process_file, file_info, image_extensions, video_extensions, input_directory)
@@ -541,7 +545,8 @@ def main():
                     title = title if title is not None else "Error: No Title Generated"
                     keywords = keywords if keywords is not None else "Error: No Keywords Generated"
                     adobestock_data.append([filename, title, keywords, "", ""])
-                    stocksubmitter_data.append([filename, title, title, keywords, ""])
+                    stocksubmitter_data.append([filename, title, title + description_ext_setting, keywords, ""])
+                    stocksubmitter_data[-1] = [col.replace("..", ".") for col in stocksubmitter_data[-1]]
             except Exception as e:
                 logging.error(f"Unhandled error processing a file future: {e}", exc_info=True)
 

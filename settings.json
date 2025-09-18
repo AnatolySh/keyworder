@@ -5,6 +5,9 @@
   "DEFAULT_LOG_DIR": "",
   "IMAGE_EXTENSIONS": [".jpg", ".jpeg", ".png"],
   "VIDEO_EXTENSIONS": [".mp4", ".mov"],
+  "FIRST_FRAME": "1",
+  "LAST_FRAME": "-1",
+  "DESCRIPTION_EXT": ". High quality 4k footage",
   "OPENAI_MODEL": "gpt-4o-mini",
   "LLM_GENERATION_PROMPT": "Generate a title and 40 single-word keywords for this image. Requirements for the Title: 120-180 characters long, descriptive of the main subject. Requirements for the Keywords: 40 keywords in total. Most important keywords must appear at the beginning in the order of relevance. Use single-word keywords that directly relate to the content. No repeated words, no brand names, no irrelevant terms, no names of real event or places in the title or keywords. Output ONLY a valid JSON object with two keys: 'title' (string) and 'keywords' (list of strings). Do not include any other text or explanations before or after the JSON object.",
   "STOP_WORDS": [
